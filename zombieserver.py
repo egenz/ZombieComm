@@ -1,6 +1,5 @@
-import os,sys,thread
+import thread,sys
 from socket import *
-import sys
         
 def main():
     try:
