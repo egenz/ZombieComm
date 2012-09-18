@@ -1,4 +1,4 @@
-ZombieCom
+ZombieComm
 ====================
 
 An Internet broadcast radio station called ZombieComm.
