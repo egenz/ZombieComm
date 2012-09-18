@@ -1,6 +1,7 @@
-import os,sys,thread
+import os,sys
+import thread
+import pyaudio
 from socket import *
-import sys
 
 HOST = 'localhost'
 PORT = 8080
