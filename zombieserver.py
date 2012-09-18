@@ -23,10 +23,10 @@ def broadcast(conn, addr):
         if q.qsize() > 6:
             data = q.get()
             conn.send(data)
+            
+            
+       #interleaving, work-in-progress     
 
-    #interleaving buffer will require us to include an error correcting packet
-    #would anyone like me to create the code to reverse engineer and do that? -eddie
-    
     conn.send(data)
     s.close()
     conn.close()
