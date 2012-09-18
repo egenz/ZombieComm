@@ -6,8 +6,10 @@ from collections import deque
 
 HOST = 'localhost'
 PORT = 8080
+num_connected = 0
 
 def broadcast(conn, addr):
+    num_connected += 1
     p = PyAudio()
     
     #buffer
@@ -15,6 +17,10 @@ def broadcast(conn, addr):
 
     while recording:
         #record stuff
+        
+        #if num_connected > 2:
+        #lower audio stream
+        
         queue.append(chunk)
         if len(queue) > 6:
             data = queue.popleft()
@@ -22,7 +28,7 @@ def broadcast(conn, addr):
         
 '''        
         with interleaving, how could we differentiate among the packets if they're
-        out of order?
+        out of order? do we want to parse until we receive an escape character?
               
         #interleaving code
         if len(queue) > 6:
