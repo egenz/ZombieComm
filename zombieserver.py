@@ -1,18 +1,33 @@
 import os,sys
 import thread
-import pyaudio
+from pyaudio import *
 from socket import *
+from Queue import *
 
 HOST = 'localhost'
 PORT = 8080
-        
-def main():
+
+def broadcast(conn, addr):
+    p = PyAudio()
+    q = Queue()
+    
+    while(q.size() < 8):
+        #record audio here, assuming in chunks?
+        q.put(chunk)
+   
+    #working on queue
+    
+    conn.send(data)
+    s.close()
+    conn.close()
+
+if __name__ == '__main__':
     try:
         s = socket(AF_INET, SOCK_STREAM)
         s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         s.bind((HOST, PORT))
         s.listen(200)
-    
+        
     except error, (value, message):
         if s:
             s.close()
@@ -23,26 +38,3 @@ def main():
         clientsock, clientaddr = s.accept()
         thread.start_new_thread(broadcast, (clientsock, clientaddr))   
     s.close()
-
-def broadcast(conn, addr):
-    try:
-        s = socket(AF_INET, SOCK_STREAM)  
-        s.connect((HOST, PORT))
-
-        while True:
-            data = s.recv(1049000)
-            if not data: break
-            conn.send(serverdata)
-        s.close()
-        conn.close()
-        
-    except error, (value, message):
-        if s:
-            s.close()
-        if conn:
-            conn.close()
-        print "Runtime Error:", message
-        sys.exit(1)
-
-if __name__ == '__main__':
-    main()
