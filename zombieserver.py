@@ -9,13 +9,23 @@ PORT = 8080
 
 def broadcast(conn, addr):
     p = PyAudio()
-    q = Queue()
     
-    while(q.size() < 8):
-        #record audio here, assuming in chunks?
+    #buffer
+    q = Queue()
+
+    while recording:
+        #record stuff
         q.put(chunk)
-   
-    #working on queue
+        
+        #if queue reaches 7 chunks of data, start sending
+        #unsure if we want it to be 7 or not
+        #chunks are just bits, right? we should be able to send it if that's the case
+        if q.qsize() > 6:
+            data = q.get()
+            conn.send(data)
+
+    #interleaving buffer will require us to include an error correcting packet
+    #would anyone like me to create the code to reverse engineer and do that? -eddie
     
     conn.send(data)
     s.close()
