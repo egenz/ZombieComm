@@ -2,7 +2,7 @@ import os,sys
 import thread
 from pyaudio import *
 from socket import *
-from Queue import *
+from collections import deque
 
 HOST = 'localhost'
 PORT = 8080
@@ -11,22 +11,28 @@ def broadcast(conn, addr):
     p = PyAudio()
     
     #buffer
-    q = Queue()
+    queue = deque([])
 
     while recording:
         #record stuff
-        q.put(chunk)
-        
-        #if queue reaches 7 chunks of data, start sending
-        #unsure if we want it to be 7 or not
-        #chunks are just bits, right? we should be able to send it if that's the case
-        if q.qsize() > 6:
-            data = q.get()
+        queue.append(chunk)
+        if len(queue) > 6:
+            data = queue.popleft()
             conn.send(data)
+        
+'''        
+        with interleaving, how could we differentiate among the packets if they're
+        out of order?
+              
+        #interleaving code
+        if len(queue) > 6:
+            data = ""
+            data += str(queue.popleft(0))
+            data += str(queue.popleft(3))
+            data += str(queue.popleft(6))
+            conn.send(data)
+'''            
             
-            
-       #interleaving, work-in-progress     
-
     conn.send(data)
     s.close()
     conn.close()
