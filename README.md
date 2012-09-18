@@ -8,4 +8,4 @@ ZombieComm will work in a client-server model. The server will constantly be bro
 This is a group project.
 
 Currently, you'll need to install the following dependencies to get this working:
-*[PyAudio](http://people.csail.mit.edu/hubert/pyaudio/#downloads).
+* [PyAudio](http://people.csail.mit.edu/hubert/pyaudio/#downloads).
