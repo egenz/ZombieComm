@@ -1,48 +1,45 @@
-import thread,sys
+import os,sys,thread
 from socket import *
+import sys
+
+HOST = 'localhost'
+PORT = 8080
         
 def main():
     try:
-        server_sock = socket(AF_INET, SOCK_STREAM)
-        server_sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-        server_sock.bind(('localhost', 1337))
-        server_sock.listen(200)
+        s = socket(AF_INET, SOCK_STREAM)
+        s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+        s.bind((HOST, PORT))
+        s.listen(200)
     
     except error, (value, message):
-        if server_sock:
-            server_sock.close()
+        if s:
+            s.close()
         print "Could not open socket:", message
         sys.exit(1)
 
     while True:
-        clientsock, clientaddr = server_sock.accept()
-        thread.start_new_thread(proxy, (clientsock, clientaddr))
-        
-    server_sock.close()
+        clientsock, clientaddr = s.accept()
+        thread.start_new_thread(broadcast, (clientsock, clientaddr))   
+    s.close()
 
-def proxy(client_sock, client_addr):
-
-    request = client_sock.recv(1049000)
-
+def broadcast(conn, addr):
     try:
         s = socket(AF_INET, SOCK_STREAM)  
-        s.connect((URL, 80))
-        s.send(request)
+        s.connect((HOST, PORT))
 
         while True:
-            serverdata = s.recv(1049000)
-            if (len(serverdata) > 0):
-                client_sock.send(serverdata)
-            else:
-                break
+            data = s.recv(1049000)
+            if not data: break
+            conn.send(serverdata)
         s.close()
-        client_sock.close()
+        conn.close()
         
     except error, (value, message):
         if s:
             s.close()
-        if client_sock:
-            client_sock.close()
+        if conn:
+            conn.close()
         print "Runtime Error:", message
         sys.exit(1)
 
