@@ -17,7 +17,6 @@ class Client(threading.Thread):
 
         while True:
             data = self.client.recv(1024)
-            print data
             self.queue.append(data)
 
 
