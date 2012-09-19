@@ -36,14 +36,15 @@ class Streamer(threading.Thread):
             if len(self.client.queue) > self.buffer_size:
                 
                 data = wave.open(self.client.queue.popleft(), 'rb')
+                #data = wave.open('boing.wav','rb')
 
-                p = pyaudio.PyAudio()
+                p = PyAudio()
 
                 data_format = p.get_format_from_width(data.getsampwidth())
-                channels = data.getnchannels()
-                sample_rate = data.getframerate()
+                data_channels = data.getnchannels()
+                data_rate = data.getframerate()
 
-                stream = p.open(data_format, channels, sample_rate, output = True)
+                stream = p.open(format = data_format, channels = data_channels, rate = data_rate, output = True)
 
                 audio = data.readframes(self.chunk)
                 while not audio == '':
