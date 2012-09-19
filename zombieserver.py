@@ -63,18 +63,6 @@ def broadcast(conn, addr):
 			data_chunk = queue.popleft()
 			conn.send(data_chunk)
         
-        '''
-        with interleaving, how could we differentiate among the packets if they're
-        out of order? do we want to parse until we receive an escape character?
-              
-        #interleaving code
-        if len(queue) > 6:
-            data = ""
-            data += str(queue.popleft(0))
-            data += str(queue.popleft(3))
-            data += str(queue.popleft(6))
-            conn.send(data)
-		''' 
 
 	conn.send(data)
 	s.close()
