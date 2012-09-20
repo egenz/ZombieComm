@@ -54,12 +54,12 @@ class Streamer(threading.Thread):
 
 			if len(self.client.queue) > self.buffer_size:
                 
-				data.writeframes(self.client.queue.popleft())
-
-				audio = data.readframes(self.chunk)
-				while not audio == '':
-					stream.write(audio)
-					audio = data.readframes(self.chunk)
+				data.writeframes(self.client.queue[0])
+				stream.write(self.client.queue.popleft())
+			#	audio = data.readframes(self.chunk)
+			#	while not audio == '':
+			#		stream.write(audio)
+			#		audio = data.readframes(self.chunk)
 
 
 		stream.close()

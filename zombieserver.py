@@ -25,7 +25,7 @@ def broadcast(conn, addr):
 		FORMAT = paInt16
 		CHANNELS = 1
 		RATE = 8000
-		RECORD_SECONDS = 10
+		RECORD_SECONDS = 30
 		WAVE_OUTPUT_FILENAME = "output.wav"
 
 
