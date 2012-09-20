@@ -1,4 +1,4 @@
-import wave, threading
+import wave, threading, sys, os
 from pyaudio import *
 from socket import *
 from collections import deque
@@ -15,10 +15,19 @@ class Client(threading.Thread):
     def __init__(self, _host, _port):
         threading.Thread.__init__(self)
 
-        self.client = socket(AF_INET, SOCK_STREAM)
-        self.client.connect((_host, _port))
+        try:
+            self.client = socket(AF_INET, SOCK_STREAM)
+            self.client.connect((_host, _port))
+        except:
+            print 'Broadcast server is unreachable'
+            os._exit(1)
+            
 
         self.queue = deque([])
+
+        self.storage = []
+        self.recording = False
+        self.p = PyAudio()
 
     def run(self):
 	'''
@@ -27,6 +36,34 @@ class Client(threading.Thread):
         while True:
             data = self.client.recv(1024)
             self.queue.append(data)
+            if self.recording:
+                self.storage.append(data)
+
+    def record(self):
+        if not self.recording:
+            self.recording = True
+        else:
+            self.recording = False
+            self.save()
+            
+    def save(self):
+        '''
+        Write to file.
+        '''
+        FORMAT = paInt16
+        CHANNELS = 1
+        RATE = 8000
+
+        data = ''.join(self.storage)
+
+        f = wave.open('broadcast.wav', 'wb')
+        f.setnchannels(CHANNELS)
+        f.setsampwidth(self.p.get_sample_size(FORMAT))
+        f.setframerate(RATE)
+        f.writeframes(data)
+        f.close()
+
+        self.storage = []
 
 
 class Streamer(threading.Thread):
@@ -56,20 +93,31 @@ class Streamer(threading.Thread):
         stream.close()
         p.terminate()
 
-    def save(self):
-        '''
-        Write to buffer.
-        '''
-        data = wave.open('outfile.wav', 'wb')
-        data.setnchannels(CHANNELS)
-        data.setsampwidth(p.get_sample_size(FORMAT))
-        data.setframerate(RATE)
 
-        data_format = p.get_format_from_width(data.getsampwidth())
-        data_channels = data.getnchannels()
-        data_rate = data.getframerate()
-        
-        data.writeframes(self.client.queue[0])
+class listener(threading.Thread):
+
+    def __init__(self, _client, _stream):
+        threading.Thread.__init__(self)
+        self.c = _client
+        self.m = _stream
+
+
+    def run(self):
+         while True:
+             if not self.c.recording:
+                 i = raw_input('[r] to start recording broadcast\n[q] to terminate client\n')
+                 if i == 'r':
+                     self.c.record()
+                     
+                 if i == 'q':
+                     self.c.client.close()
+                     os._exit(1)
+             if self.c.recording:
+                 i = raw_input('[r] to stop recording broadcast\n')
+                 if i == 'r':
+                     self.c.record()
+                     
+
 
 
 if __name__ == '__main__':
@@ -79,5 +127,7 @@ if __name__ == '__main__':
 
     c = Client(HOST, PORT)
     s = Streamer(c)
+    l = listener(c, s)
     c.start()
     s.start()
+    l.start()

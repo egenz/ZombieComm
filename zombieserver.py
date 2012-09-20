@@ -38,16 +38,16 @@ def record(_seconds):
 
 	stream = p.open(format = FORMAT, channels = CHANNELS, rate = RATE, input = True, frames_per_buffer = chunk)
 	
-	data_list = []
+	tmp = []
 
 	print "* recording"
 
 	for i in range(0, RATE / chunk * _seconds):
 		data = stream.read(chunk)		
-		data_list.append(data)
+		tmp.append(data)
 
 	print "* done recording"
-	
+	data_list = tmp[:]
 	stream.close()
 	p.terminate()
 
@@ -59,6 +59,7 @@ def broadcast(conn, addr):
 	'''
 	
 	global data_list
+	buffer_size = 3
 
 	#We use deque because it is thread-safe and quick.
 	queue = deque([])
@@ -68,10 +69,14 @@ def broadcast(conn, addr):
 	#print "Total connected: " + str(num_connected)
 	
 	while True:
-		conn.send(queue.popleft())
-		if len(queue) < 1:
-			for line in data_list:
-				queue.append(line)
+		try:
+			if len(queue) > 0:
+				conn.send(queue.popleft())
+			if len(queue) < 1:
+				for line in data_list:
+					queue.append(line)
+		except:
+			pass
 
 	conn.close()
 
