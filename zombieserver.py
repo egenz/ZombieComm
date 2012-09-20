@@ -1,5 +1,5 @@
 from struct import *
-import os,sys
+import os,sys, time
 import thread
 from pyaudio import *
 from socket import *
@@ -69,10 +69,11 @@ def broadcast(conn, addr):
 	#print "Total connected: " + str(num_connected)
 	
 	while True:
+		time.sleep(.045)
 		try:
 			if len(queue) > 0:
 				conn.send(queue.popleft())
-			if len(queue) < 1:
+			if len(queue) == 0:
 				for line in data_list:
 					queue.append(line)
 		except:

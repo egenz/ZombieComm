@@ -27,7 +27,6 @@ class Client(threading.Thread):
 
         self.storage = []
         self.recording = False
-        self.p = PyAudio()
 
     def run(self):
 	'''
@@ -35,9 +34,12 @@ class Client(threading.Thread):
 	'''
         while True:
             data = self.client.recv(1024)
-            self.queue.append(data)
-            if self.recording:
-                self.storage.append(data)
+            if data == 'endmsg':
+                self.queue = deque([])
+            else:
+                self.queue.append(data)
+                if self.recording:
+                    self.storage.append(data)
 
     def record(self):
         if not self.recording:
@@ -54,16 +56,19 @@ class Client(threading.Thread):
         CHANNELS = 1
         RATE = 8000
 
+        p = PyAudio()
+
         data = ''.join(self.storage)
 
         f = wave.open('broadcast.wav', 'wb')
         f.setnchannels(CHANNELS)
-        f.setsampwidth(self.p.get_sample_size(FORMAT))
+        f.setsampwidth(p.get_sample_size(FORMAT))
         f.setframerate(RATE)
         f.writeframes(data)
         f.close()
 
         self.storage = []
+        p.terminate()
 
 
 class Streamer(threading.Thread):
@@ -76,7 +81,7 @@ class Streamer(threading.Thread):
         self.RATE = 8000
 
         self.client = _client
-        self.buffer_size = 6
+        self.buffer_size = 20
         self.chunk = 1024
 
     def run(self):
