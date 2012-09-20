@@ -16,12 +16,12 @@ Server-side for our ZombieComm Radio Broadcast.
 HOST = 'localhost'
 PORT = 8080
 num_connected = 0
-recording = True
 
 data_list = []
 
+s = None
 
-def record():
+def record(_seconds):
 
 	'''
 	Record from mic and append to list.
@@ -35,7 +35,6 @@ def record():
 	FORMAT = paInt16
 	CHANNELS = 1
 	RATE = 8000
-	RECORD_SECONDS = 5
 
 	stream = p.open(format = FORMAT, channels = CHANNELS, rate = RATE, input = True, frames_per_buffer = chunk)
 	
@@ -43,7 +42,7 @@ def record():
 
 	print "* recording"
 
-	for i in range(0, RATE / chunk * RECORD_SECONDS):
+	for i in range(0, RATE / chunk * _seconds):
 		data = stream.read(chunk)		
 		data_list.append(data)
 
@@ -66,7 +65,7 @@ def broadcast(conn, addr):
 	for line in data_list:
 		queue.append(line)
 
-	print "Total connected: " + str(num_connected)
+	#print "Total connected: " + str(num_connected)
 	
 	while True:
 		conn.send(queue.popleft())
@@ -77,7 +76,20 @@ def broadcast(conn, addr):
 	conn.close()
 
 
+def input_listener(_socket):
+
+	while True:
+		i = raw_input('[m] to record a new broadcast\n[q] to terminate server\n')
+		if i == 'm':
+			t = raw_input('enter recording length [seconds]\n')
+			record(int(t))
+		if i == 'q':
+			_socket.close()
+			os._exit(1)
+
+
 if __name__ == '__main__':
+	
 	try:
 		s = socket(AF_INET, SOCK_STREAM)
 		s.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
@@ -90,7 +102,7 @@ if __name__ == '__main__':
 		print "Could not open socket:", message
 		sys.exit(1)
 
-	record()
+	thread.start_new_thread(input_listener, (s,))   
 
 	while True:
 		clientsock, clientaddr = s.accept()

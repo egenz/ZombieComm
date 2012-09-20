@@ -57,9 +57,9 @@ class Streamer(threading.Thread):
         p.terminate()
 
     def save(self):
-		'''
-		Write to buffer.
-		'''
+        '''
+        Write to buffer.
+        '''
         data = wave.open('outfile.wav', 'wb')
         data.setnchannels(CHANNELS)
         data.setsampwidth(p.get_sample_size(FORMAT))
@@ -68,7 +68,7 @@ class Streamer(threading.Thread):
         data_format = p.get_format_from_width(data.getsampwidth())
         data_channels = data.getnchannels()
         data_rate = data.getframerate()
-                
+        
         data.writeframes(self.client.queue[0])
 
 
