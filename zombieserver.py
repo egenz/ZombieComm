@@ -26,20 +26,18 @@ def record():
 	RATE = 8000
 	RECORD_SECONDS = 5
 
-	tmp = []
-
 	stream = p.open(format = FORMAT, channels = CHANNELS, rate = RATE, input = True, frames_per_buffer = chunk)
 	
+	data_list = []
+
 	print "* recording"
 
 	for i in range(0, RATE / chunk * RECORD_SECONDS):
 		data = stream.read(chunk)		
-		tmp.append(data)
+		data_list.append(data)
 
 	print "* done recording"
 	
-	data_list = tmp[:]
-
 	stream.close()
 	p.terminate()
 
