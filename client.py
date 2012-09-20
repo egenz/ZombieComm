@@ -3,6 +3,12 @@ from pyaudio import *
 from socket import *
 from collections import deque
 
+__author__ =  'Ethan Genz, Jordan Haber, Eddie Figueroa'
+__version__=  '1.0'
+
+'''
+Client-side for our ZombieComm Radio Broadcast.
+'''
 
 class Client(threading.Thread):
 
@@ -15,7 +21,9 @@ class Client(threading.Thread):
         self.queue = deque([])
 
     def run(self):
-
+	'''
+	Receive from server, append to buffer.
+	'''
         while True:
             data = self.client.recv(1024)
             self.queue.append(data)
@@ -35,7 +43,6 @@ class Streamer(threading.Thread):
         self.chunk = 1024
 
     def run(self):
-
         p = PyAudio()
 
         stream = p.open(format = self.FORMAT, channels = self.CHANNELS, rate = self.RATE, output = True)
@@ -50,7 +57,9 @@ class Streamer(threading.Thread):
         p.terminate()
 
     def save(self):
-
+		'''
+		Write to buffer.
+		'''
         data = wave.open('outfile.wav', 'wb')
         data.setnchannels(CHANNELS)
         data.setsampwidth(p.get_sample_size(FORMAT))

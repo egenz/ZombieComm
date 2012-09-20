@@ -6,6 +6,13 @@ from socket import *
 from collections import deque
 import wave
 
+__author__ =  'Ethan Genz, Jordan Haber, Eddie Figueroa'
+__version__=  '1.0'
+
+'''
+Server-side for our ZombieComm Radio Broadcast.
+'''
+
 HOST = 'localhost'
 PORT = 8080
 num_connected = 0
@@ -15,6 +22,10 @@ data_list = []
 
 
 def record():
+
+	'''
+	Record from mic and append to list.
+	'''
 
 	global data_list
 
@@ -43,9 +54,14 @@ def record():
 
 
 def broadcast(conn, addr):
+
+	'''
+	Send broadcast to client.
+	'''
 	
 	global data_list
 
+	#We use deque because it is thread-safe and quick.
 	queue = deque([])
 	for line in data_list:
 		queue.append(line)
