@@ -25,6 +25,11 @@ class Streamer(threading.Thread):
 
     def __init__(self, _client):
         threading.Thread.__init__(self)
+
+        self.FORMAT = paInt16
+        self.CHANNELS = 1
+        self.RATE = 8000
+
         self.client = _client
         self.buffer_size = 6
         self.chunk = 1024
@@ -33,7 +38,7 @@ class Streamer(threading.Thread):
 
         p = PyAudio()
 
-        stream = p.open(format = data_format, channels = data_channels, rate = data_rate, output = True)
+        stream = p.open(format = self.FORMAT, channels = self.CHANNELS, rate = self.RATE, output = True)
         
         while True:
 
@@ -45,10 +50,6 @@ class Streamer(threading.Thread):
         p.terminate()
 
     def save(self):
-
-        FORMAT = paInt16
-        CHANNELS = 1
-        RATE = 8000
 
         data = wave.open('outfile.wav', 'wb')
         data.setnchannels(CHANNELS)
