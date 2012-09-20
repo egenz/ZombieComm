@@ -12,14 +12,15 @@ num_connected = 0
 recording = True
 
 def broadcast(conn, addr):
-	#num_connected += 1
+	global num_connected
+	num_connected += 1
+	print "Total connected: " + str(num_connected)
+	
 	p = PyAudio()
 
 	#buffer
-	#queue = deque([])
 	data_list = []
 
-	#when do we want to do this?
 	while True:
 		chunk = 1024
 		FORMAT = paInt16
@@ -47,30 +48,6 @@ def broadcast(conn, addr):
 
 		stream.close()
 		p.terminate()
-		'''
-		print "* recording"
-		for i in range(0, RATE / chunk * RECORD_SECONDS):
-			data = stream.read(chunk)
-			d = str(data)
-			s = d.encode('hex_codec')
-			data_list.append(s)
-			conn.send(data_list[i])
-		print "* done recording"
-
-		stream.close()
-		p.terminate()
-		'''
-#	i = 0
-
-#	if i > len(data_list):
-#		data_chunk = data_list[i]
-#		i += 1
-#		data_chunk = queue.popleft()
-#		conn.send(data_chunk)
-#	else:
-#		i = 0
-        
-
 
 	conn.send(data)
 	s.close()
