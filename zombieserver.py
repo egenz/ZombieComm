@@ -1,3 +1,4 @@
+from struct import *
 import os,sys
 import thread
 from pyaudio import *
@@ -8,61 +9,68 @@ import wave
 HOST = 'localhost'
 PORT = 8080
 num_connected = 0
+recording = True
 
 def broadcast(conn, addr):
-	num_connected += 1
+	#num_connected += 1
 	p = PyAudio()
 
 	#buffer
-	queue = deque([])
+	#queue = deque([])
+	data_list = []
 
-	while recording:
+	#when do we want to do this?
+	while True:
 		chunk = 1024
-		FORMAT = pyaudio.paInt16
+		FORMAT = paInt16
 		CHANNELS = 1
-		RATE = 44100
-		RECORD_SECONDS = 5
+		RATE = 8000
+		RECORD_SECONDS = 10
 		WAVE_OUTPUT_FILENAME = "output.wav"
 
-		#p = pyaudio.PyAudio()
 
 		stream = p.open(format = FORMAT,
-						channels = CHANNELS,
-						rate = RATE,
-						input = True,
-						output = True,
-						frames_per_buffer = chunk)
+				        channels = CHANNELS,
+				        rate = RATE,
+				        input = True,
+				        frames_per_buffer = chunk)
 
+		print "* recording"
+		all = []
+
+		for i in range(0, RATE / chunk * RECORD_SECONDS):
+			data = stream.read(chunk)		
+			
+			all.append(data)
+			conn.sendall(data)
+		print "* done recording"
+
+		stream.close()
+		p.terminate()
+		'''
 		print "* recording"
 		for i in range(0, RATE / chunk * RECORD_SECONDS):
 			data = stream.read(chunk)
-#			stream.write(data, chunk)
-			queue.append(data)
+			d = str(data)
+			s = d.encode('hex_codec')
+			data_list.append(s)
+			conn.send(data_list[i])
 		print "* done recording"
 
-#		stream.stop_stream()
 		stream.close()
 		p.terminate()
-		
 		'''
-		# write data to WAVE file
-		data = ''.join(queue)
-		wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
-		wf.setnchannels(CHANNELS)
-		wf.setsampwidth(p.get_sample_size(FORMAT))
-		wf.setframerate(RATE)
-		wf.writeframes(data)
-		wf.close()
-		'''
-		
-		#if num_connected > 2:
-		#lower audio stream
-		
+#	i = 0
 
-		if len(queue) > 6:
-			data_chunk = queue.popleft()
-			conn.send(data_chunk)
+#	if i > len(data_list):
+#		data_chunk = data_list[i]
+#		i += 1
+#		data_chunk = queue.popleft()
+#		conn.send(data_chunk)
+#	else:
+#		i = 0
         
+
 
 	conn.send(data)
 	s.close()
