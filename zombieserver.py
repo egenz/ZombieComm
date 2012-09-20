@@ -11,15 +11,16 @@ PORT = 8080
 num_connected = 0
 recording = True
 
+data_list = []
+
+
 def broadcast(conn, addr):
+
 	global num_connected
 	num_connected += 1
 	print "Total connected: " + str(num_connected)
 	
 	p = PyAudio()
-
-	#buffer
-	data_list = []
 
 	while True:
 		chunk = 1024
@@ -27,14 +28,8 @@ def broadcast(conn, addr):
 		CHANNELS = 1
 		RATE = 8000
 		RECORD_SECONDS = 30
-		WAVE_OUTPUT_FILENAME = "output.wav"
 
-
-		stream = p.open(format = FORMAT,
-				        channels = CHANNELS,
-				        rate = RATE,
-				        input = True,
-				        frames_per_buffer = chunk)
+		stream = p.open(format = FORMAT, channels = CHANNELS, rate = RATE, input = True, frames_per_buffer = chunk)
 
 		print "* recording"
 		all = []
