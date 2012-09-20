@@ -14,39 +14,54 @@ recording = True
 data_list = []
 
 
-def broadcast(conn, addr):
+def record():
 
-	global num_connected
-	num_connected += 1
-	print "Total connected: " + str(num_connected)
-	
+	global data_list
+
 	p = PyAudio()
 
+	chunk = 1024
+	FORMAT = paInt16
+	CHANNELS = 1
+	RATE = 8000
+	RECORD_SECONDS = 5
+
+	tmp = []
+
+	stream = p.open(format = FORMAT, channels = CHANNELS, rate = RATE, input = True, frames_per_buffer = chunk)
+	
+	print "* recording"
+
+	for i in range(0, RATE / chunk * RECORD_SECONDS):
+		data = stream.read(chunk)		
+		tmp.append(data)
+
+	print "* done recording"
+	
+	data_list = tmp[:]
+
+	stream.close()
+	p.terminate()
+
+
+def broadcast(conn, addr):
+	
+	global data_list
+
+	queue = deque([])
+	for line in data_list:
+		queue.append(line)
+
+	print "Total connected: " + str(num_connected)
+	
 	while True:
-		chunk = 1024
-		FORMAT = paInt16
-		CHANNELS = 1
-		RATE = 8000
-		RECORD_SECONDS = 30
+		conn.send(queue.popleft())
+		if len(queue) < 1:
+			for line in data_list:
+				queue.append(line)
 
-		stream = p.open(format = FORMAT, channels = CHANNELS, rate = RATE, input = True, frames_per_buffer = chunk)
-
-		print "* recording"
-		all = []
-
-		for i in range(0, RATE / chunk * RECORD_SECONDS):
-			data = stream.read(chunk)		
-			
-			all.append(data)
-			conn.sendall(data)
-		print "* done recording"
-
-		stream.close()
-		p.terminate()
-
-	conn.send(data)
-	s.close()
 	conn.close()
+
 
 if __name__ == '__main__':
 	try:
@@ -61,7 +76,10 @@ if __name__ == '__main__':
 		print "Could not open socket:", message
 		sys.exit(1)
 
+	record()
+
 	while True:
 		clientsock, clientaddr = s.accept()
 		thread.start_new_thread(broadcast, (clientsock, clientaddr))   
+		num_connected += 1
 	s.close()
